@@ -576,6 +576,10 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
         subscribedPartitionsToStartOffsets = new HashMap<>();
         final List<KafkaTopicPartition> allPartitions = partitionDiscoverer.discoverPartitions();
         if (restoredState != null) {
+            LOG.info(
+                    "state info{},allpartitions info:{}.",
+                    restoredState.toString(),
+                    allPartitions.toString());
             for (KafkaTopicPartition partition : allPartitions) {
                 if (!restoredState.containsKey(partition)) {
                     restoredState.put(partition, KafkaTopicPartitionStateSentinel.LATEST_OFFSET);
@@ -587,13 +591,20 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
                 // seed the partition discoverer with the union state while filtering out
                 // restored partitions that should not be subscribed by this subtask
                 if (KafkaTopicPartitionAssigner.assign(
-                                restoredStateEntry.getKey(),
-                                getRuntimeContext().getNumberOfParallelSubtasks())
-                        == getRuntimeContext().getIndexOfThisSubtask()) {
+                                        restoredStateEntry.getKey(),
+                                        getRuntimeContext().getNumberOfParallelSubtasks())
+                                == getRuntimeContext().getIndexOfThisSubtask()
+                        && allPartitions.contains(restoredStateEntry.getKey())) {
                     subscribedPartitionsToStartOffsets.put(
                             restoredStateEntry.getKey(), restoredStateEntry.getValue());
+                } else {
+                    LOG.warn("{} is filtered from partitions.", restoredStateEntry.getKey());
                 }
             }
+            LOG.info(
+                    "be filtered state info{},subscribedPartitionsToStartOffsets info:{}.",
+                    restoredState.toString(),
+                    subscribedPartitionsToStartOffsets.toString());
 
             if (filterRestoredPartitionsWithCurrentTopicsDescriptor) {
                 subscribedPartitionsToStartOffsets
