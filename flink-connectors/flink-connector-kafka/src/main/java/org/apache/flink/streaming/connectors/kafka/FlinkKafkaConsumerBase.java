@@ -578,7 +578,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
         if (restoredState != null) {
             for (KafkaTopicPartition partition : allPartitions) {
                 if (!restoredState.containsKey(partition)) {
-                    restoredState.put(partition, KafkaTopicPartitionStateSentinel.EARLIEST_OFFSET);
+                    restoredState.put(partition, KafkaTopicPartitionStateSentinel.LATEST_OFFSET);
                 }
             }
 

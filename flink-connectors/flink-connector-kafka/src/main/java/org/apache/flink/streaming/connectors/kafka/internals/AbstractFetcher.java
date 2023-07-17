@@ -231,7 +231,7 @@ public abstract class AbstractFetcher<T, KPH> {
         List<KafkaTopicPartitionState<T, KPH>> newPartitionStates =
                 createPartitionStateHolders(
                         newPartitions,
-                        KafkaTopicPartitionStateSentinel.EARLIEST_OFFSET,
+                        KafkaTopicPartitionStateSentinel.LATEST_OFFSET,
                         timestampWatermarkMode,
                         watermarkStrategy,
                         userCodeClassLoader);
